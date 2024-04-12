@@ -17,6 +17,15 @@ bool shouldWakeUp()
 
 void pushTemperature(int temperature)
 {
+
+    std::unique_lock<std::mutex> lock(queueMutex);
+    queueCV.wait(lock, [] { return temperatureQueue.size() < 10; });
+
+    temperatureQueue.push(temperature);
+    std::cout << "Thread 1 pushed: " << temperature << std::endl;
+
+    lock.unlock();
+    queueCV.notify_all();
     // TODO (part 1):  
     //
     // Implement the logic to push temperature onto the queue
@@ -39,6 +48,16 @@ void thread1()
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dist(1, 50);
+
+    for (int i = 0; i < 100; ++i)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        int temperature = dist(gen);
+        pushTemperature(temperature);
+    }
+
+    isThread1Running = false;
+    queueCV.notify_all();
 
     // TODO: (part 2)
     // 
@@ -67,6 +86,21 @@ void convertTemperature(int temperature)
 
 void convertAndReportTemperature()
 {
+
+    while (isThread1Running || !temperatureQueue.empty())
+    {
+        std::unique_lock<std::mutex> lock(queueMutex);
+        queueCV.wait(lock, shouldWakeUp);
+
+        while (!temperatureQueue.empty())
+        {
+            int temperature = temperatureQueue.front();
+            temperatureQueue.pop();
+            lock.unlock();
+            convertTemperature(temperature);
+            lock.lock();
+        }
+    }
     // TODO (part 3):
     //
     // 1. Enter a loop while the isThread1Running flag is true or the temperatureQueue is not empty.
