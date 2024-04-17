@@ -18,28 +18,15 @@ bool shouldWakeUp()
 void pushTemperature(int temperature)
 {
 
-    std::unique_lock<std::mutex> lock(queueMutex);
-    queueCV.wait(lock, [] { return temperatureQueue.size() < 10; });
+    std::unique_lock<std::mutex> lock(queueMutex); // Acquire the lock on the queueMutex using std::unique_lock.
+    queueCV.wait(lock, [] { return temperatureQueue.size() < 10; }); // Wait until the condition variable queueCV is signaled and the size of the temperatureQueue is less than 10.
 
-    temperatureQueue.push(temperature);
+
+    temperatureQueue.push(temperature); // Push the temperature value onto the temperatureQueue.
     std::cout << "Thread 1 pushed: " << temperature << std::endl;
 
     lock.unlock();
-    queueCV.notify_all();
-    // TODO (part 1):  
-    //
-    // Implement the logic to push temperature onto the queue
-    // using a mutex and condition variable for synchronization.
-    // Make sure to notify the consumer thread after pushing the temperature.
-    // 
-    //     1. Acquire the lock on the queueMutex using std::unique_lock.
-    //     2. Wait until the condition variable queueCV is signaled and the size of the temperatureQueue is less than 10.
-    //     3. Push the temperature value onto the temperatureQueue.
-    //     4. Print a message indicating that Thread 1 pushed the temperature value onto the queue.
-    //     5. Notify all threads waiting on the condition variable queueCV.
-
-
-    // End TODO part 1
+    queueCV.notify_all(); // Notify all threads waiting on the condition variable queueCV.
 
 }
 
