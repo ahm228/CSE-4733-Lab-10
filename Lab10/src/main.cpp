@@ -38,29 +38,13 @@ void thread1()
 
     for (int i = 0; i < 100; ++i)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        int temperature = dist(gen);
-        pushTemperature(temperature);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Sleep for 100 milliseconds to simulate processing time.
+        int temperature = dist(gen); // Generate a random temperature using the random number generator dist.
+        pushTemperature(temperature); // Call the pushTemperature function with the generated temperature.
     }
 
-    isThread1Running = false;
-    queueCV.notify_all();
-
-    // TODO: (part 2)
-    // 
-	// 1. Set the variable i to 0.
-        //
-	// 2. Enter a loop while i is less than 100:
-	//     a. Sleep for 100 milliseconds to simulate processing time.
-	//     b. Generate a random temperature using the random number generator dist.
-	//     c. Call the pushTemperature function with the generated temperature.
-	//     d. Increment the value of i by 1.
-        //
-	// 3. Set the value of isThread1Running to false.
-	// 4. Notify all threads waiting on the condition variable queueCV.
-
-
-        // End TODO part 2
+    isThread1Running = false; // Set the value of isThread1Running to false.
+    queueCV.notify_all(); // Notify all threads waiting on the condition variable queueCV.
 
 }
 
