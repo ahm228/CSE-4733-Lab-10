@@ -58,33 +58,20 @@ void convertTemperature(int temperature)
 void convertAndReportTemperature()
 {
 
-    while (isThread1Running || !temperatureQueue.empty())
+    while (isThread1Running || !temperatureQueue.empty()) // Enter a loop while the isThread1Running flag is true or the temperatureQueue is not empty.
     {
-        std::unique_lock<std::mutex> lock(queueMutex);
+        std::unique_lock<std::mutex> lock(queueMutex); // Acquire the lock on the queueMutex.
         queueCV.wait(lock, shouldWakeUp);
 
-        while (!temperatureQueue.empty())
+        while (!temperatureQueue.empty()) // Wait until the condition variable queueCV is signaled and either the temperatureQueue is not empty or isThread1Running is true.
         {
-            int temperature = temperatureQueue.front();
-            temperatureQueue.pop();
-            lock.unlock();
-            convertTemperature(temperature);
+            int temperature = temperatureQueue.front(); // Retrieve the front temperature value from the temperatureQueue.
+            temperatureQueue.pop(); // Remove the front temperature value from the temperatureQueue.
+            lock.unlock(); // Release the lock on the queueMutex.
+            convertTemperature(temperature); // Call the convertTemperature function with the retrieved temperature value.
             lock.lock();
         }
     }
-    // TODO (part 3):
-    //
-    // 1. Enter a loop while the isThread1Running flag is true or the temperatureQueue is not empty.
-    // 2. Acquire the lock on the queueMutex.
-    // 3. Wait until the condition variable queueCV is signaled and either the temperatureQueue is not empty or isThread1Running is true.
-    // 4. If the temperatureQueue is not empty:
-    //     a. Retrieve the front temperature value from the temperatureQueue.
-    //     b. Remove the front temperature value from the temperatureQueue.
-    //     c. Release the lock on the queueMutex.
-    //     d. Call the convertTemperature function with the retrieved temperature value.
-
-
-    // End TODO part 3
 
 }
 
